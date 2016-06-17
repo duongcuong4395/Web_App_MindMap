@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html >
+	<head >
+		<title>Mind Map</title >
+		<meta charset="UTF-8" >
+		
+		<script type = "text/javascript" src="Js/go.js"></script >
+		
+		<script type = "text/javascript" rel = "stylesheet" src="Js/jquery.min.js" ></script >
+		<script type = "text/javascript" rel = "stylesheet" src = "Js/jquery-ui.js"></script>
+		<script type = "text/javascript" rel = "stylesheet" src = "Js/mindmap.js"></script >
+		
+		<link type = "Text/Css" rel = "stylesheet" href = "Css/mindmap.css"></link >
+		<!--Create FAVICON for web-->
+		<link href = "images/Icons/favicon(2).ico" rel = "shortcut icon" type = "image/x-icon"></link >
+	</head >
+	
+	<body onload = "init()" id = "load" >
+		
+		<!--menu-->
+		<div id  = "menu" >
+		
+			<div class = "save_Load_Search_MindMap">
+				<table>
+					<tr >
+						<td ><input id = "inputFileNameToSaveAs" ></input ></td >
+						<td ><button onclick = "saveTextAsFile()" >Save mindmap</button ></td >
+					</tr >
+					<tr >
+						<td ><input type = "file" id = "fileToLoad" >
+						<td ><button onclick = "loadFileAsText()" >Load File</button ><td >
+					</tr >
+					<tr >
+						<td ><input type="search" id="mySearch" onkeypress="if (event.keyCode === 13) searchDiagram()" ></input ></td >
+						<td ><button onclick="searchDiagram()">Search</button ></td >
+					</tr >
+					<tr >
+						<td ><img id = "imgage_gallery" src = "images/Photos-icon.png" /></td >
+						<td ><a id = "Keyboard_Shortcuts" >Hotkeys</a ></td >
+					</tr >
+					<tr >
+					</tr >
+				</table >
+			</div >
+			<ul id = "thumb" style = "display: block;" >
+				<li >
+					<img class = "hinh" src = "images/1.png" dir = "images/1.png" />
+				</li >
+				<li >
+					<img class  = "hinh" src = "images/2.jpg" dir = "images/2.jpg" />
+				</li >
+				<li >
+					<img class = "hinh" src = "images/3.png" dir = "images/3.png" />
+				</li >
+				<li >
+					<img class = "hinh" src = "images/4.jpg" dir = "images/4.jpg" />
+				</li >
+				<li >
+					<img class = "hinh" src = "images/5.jpg" dir = "images/5.jpg" />
+				</li >
+				<li >
+					<img class = "hinh" src = "images/6.jpg" dir = "images/6.jpg" />
+				</li >
+				<li >
+					<img class = "hinh" src = "images/7.jpg" dir = "images/7.jpg" />
+				</li >
+				<li >
+					<img class = "hinh" src = "images/8.png" dir = "images/8.png" />
+				</li >
+				<li >
+					<img class = "hinh" src = "images/9.png" dir = "images/9.png" />
+				</li >
+				<li >
+					<input type='file' id='verborgen_file' />
+					<input type="button" value="Upload" id="uploadButton" />
+				</li >
+			</ul >
+			
+			<table id = "Hotkeys_Table">
+				<tr >
+					<td >
+						<h2 >H2 1</h2 >
+					</td >
+				</tr >
+				<tr >
+					
+					<td >Backspace or Delete(Del)</td >
+					<td >Remove node </td >
+				</tr >
+				
+				<tr >
+					<td >Doupble click</td >
+					<td >Create new node</td >
+				</tr >
+				
+				<tr >
+					<td > 
+						<h2 >h2 2</h2 >
+					</td >
+				</tr >
+				<tr >
+					<td >Ctrl + X </td >
+					<td >Cut</td >
+				</tr >
+				
+				<tr >
+					<td >Ctrl + C</td >
+					<td >Copy</td >
+				</tr >
+				
+				<tr >
+					<td >Ctrl + V</td >
+					<td >Paste</td >
+				</tr >
+				
+				<tr >
+					<td >Ctrl + Z</td >
+					<td >Undo</td >
+				</tr >
+				
+				<tr >
+					<td >Ctrl + Y</td >
+					<td >Redo</td >
+				</tr >
+				
+				<tr >
+					<td >Ctrl + "+"</td >
+					<td >Zoom in</td >
+				</tr >
+				
+				<tr >
+					<td >Ctrl + "--"</td >
+					<td >Zoom out</td >
+				</tr >
+				
+				<tr >
+					<td >Ctrl + "A"</td >
+					<td >Selected all node</td >
+				</tr >
+				
+				<tr >
+					<td ></td >
+					<td ><a id = "Helper" >Help</a ></td >
+				</tr >
+			</table>
+		</div >
+		
+		
+		<!--mindMap-->
+		<div class = "mindMap" >
+			<!--Div MindMap-->
+			<div id = "DiagramDiv" ></div >
+			<div id="myOverviewDiv"></div>
+		</div >
+		
+		<table >
+			<textarea id="mySavedModel" >
+				{ "class": "go.TreeModel",
+					"nodeDataArray": [
+						{"key":0, "text":"Mind Map", "loc":"50 150", "color": "orange"}
+						
+					]
+				}
+			</textarea >
+		</table >
+	</body >
+</html >
