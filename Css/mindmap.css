@@ -1,0 +1,155 @@
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: white;		
+	color: #222;
+	font: 13px/22px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+#mySavedModel{
+	display: none;
+}
+			
+#DiagramDiv{
+	width: 100%; 
+	height: 675px;
+}
+		
+.group-button{
+	padding: 3px;
+	background-color: orange;
+	border: 2px solid red;
+	border-radius: 5px;
+}
+			
+.group-button:hover{
+	box-shadow: 0 2px 0 2px pink;
+}
+			
+.choose:hover{
+	box-shadow: 0 2px 0 0 blue;
+}
+			
+#box {
+	width: 300px;
+	height: 300px;
+				
+	border: 1px solid #999;
+	position: relative;
+}
+
+#file {
+	opacity: 0; 
+	border: none;
+	border-radius: 3px;
+	background: grey;
+	position: absolute;
+	left: 0px;    
+	width: 100%;
+	top: 0px;
+	height: 100%;
+}
+			
+#menu{
+	position: absolute; 
+	z-index: 10;
+	background: green;
+	border: 4px solid red;
+	border-radius: 30px;
+	width: 30%;
+}
+			
+#menu.ui-draggable-dragging { 
+	background: blue;
+	box-shadow: 1px 3px 3px 3px yellow;
+}
+			
+#Keyboard_Shortcuts{
+	margin-left: 20px;
+	font-size: 20px;
+	color: white;
+	cursor: pointer;
+}
+			
+#Keyboard_Shortcuts:hover{
+	color: yellow;
+	box-shadow: 1px 2px 2px 2px pink;
+}
+			
+#Keyboard_Shortcuts:active{
+	color: red;
+}
+			
+#Hotkeys_Table{
+	padding: 5px;
+	display: none;
+	width: 300px;
+	height: 150px;
+	color: #000; 
+	z-index: 9999;
+	border: 1px solid #CCC ;
+	overflow: hidden;
+	position: absolute;	
+}
+			
+#Hotkeys_Table:hover{
+	box-shadow: 1px 4px 4px 4px pink;
+}
+			
+#imgage_gallery{
+	height: 30px;
+	width: 30px;
+	margin-left: 20px;
+	margin-top: 20px;
+	cursor: pointer;
+}
+	
+#imgage_gallery:hover{
+	box-shadow: 1px 2px 2px 2px orange;
+}
+			
+#thumb{ 
+	padding: 5px;
+	width: 150px;
+	height: 180px;
+	color: #000; 
+	
+	border: 1px solid #CCC ;
+	position: absolute;		
+}
+			
+#thumb:hover{
+	box-shadow: 1px 4px 4px 4px pink;
+}
+			 
+.hinh{
+	width: 30px;
+	height: 30px;
+	border: 2px solid red;
+}
+			 
+			 
+			 
+ul{
+	list-style:none; 
+	margin:0; 
+	padding:0;
+}
+
+li{
+	float:left;
+	padding:5px;
+	border:solid #666 0;
+	cursor: pointer;
+}
+			
+			
+#Hotkeys_Table td{
+	font-size: 17px;
+}
+			
