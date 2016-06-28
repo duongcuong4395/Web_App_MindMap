@@ -1,162 +1,181 @@
 //Script MindMap(add, edit, move,... Node)
-function init() 
-{
+function init() {	
+	if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
 	var $ = go.GraphObject.make;
-				
-	myDiagram =
-				
-	$(go.Diagram, "DiagramDiv",{
-				
-	// position the graph in the middle of the diagram
-	initialContentAlignment: go.Spot.Center,  
-	
-	// Put the diagram contents at the top center of the viewport
-    initialDocumentSpot: go.Spot.TopCenter,
-    initialViewportSpot: go.Spot.TopCenter,
 					
-	// allow double-click in background to create a new node
-	"clickCreatingTool.archetypeNodeData": { text: "Node", color: "white" },
-
-	// have mouse wheel events zoom in and out instead of scroll up and down
-	"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+	myDiagram = $(go.Diagram, "DiagramDiv", {
+			// position the graph in the middle of the diagram
+			initialContentAlignment: go.Spot.Center,  
 			
-	// when the user drags a node, also move/copy/delete the whole subtree starting with that node
-	"undoManager.isEnabled": true
-					
-					
-});
+			// Put the diagram contents at the top center of the viewport
+			initialDocumentSpot: go.Spot.TopCenter,
+			initialViewportSpot: go.Spot.TopCenter,
+							
+			// allow double-click in background to create a new node
+			"clickCreatingTool.archetypeNodeData": { namenode: "New Idea", fill: "white", stroke: "blue", dir: "",  source: "", strokeWidth: ""},
 
-// when the document is modified, add a "*" to the title and enable the "Save" button
-myDiagram.addDiagramListener("Modified", function(e) {
-	var button = document.getElementById("SaveButton");
-	if (button) button.disabled = !myDiagram.isModified;
-	var idx = document.title.indexOf("*");
-	if (myDiagram.isModified) {
-		if (idx < 0) document.title += "*";
-	} else {
-		if (idx >= 0) document.title = document.title.substr(0, idx);
-	}
-});
-				
+			// have mouse wheel events zoom in and out instead of scroll up and down
+			"toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+			
+			
+			// when the user drags a node, also move/copy/delete the whole subtree starting with that node
+			"undoManager.isEnabled": true			
+		}
+	);
 
-// a node consists of some text with a line shape underneath
-myDiagram.nodeTemplate =
-$(go.Node, "Auto",  {
-		selectionObjectName: "TEXT", 
-		rotatable: true, 
-		locationSpot: go.Spot.Center,
-		resizable: true
-	},new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-					
-					
-	/*
-	$(go.Picture,{
-			margin: 10, 
-			width: 50, 
-			height: 50, 
-			background: "red" 
-		},
-		new go.Binding("source")
-	),*/
-	
+	// when the document is modified, add a "*" to the title and enable the "Save" button
+	myDiagram.addDiagramListener("Modified", function(e) {
+			var button = document.getElementById("SaveButton");
+			if (button) button.disabled = !myDiagram.isModified;
+			var idx = document.title.indexOf("*");
+			if (myDiagram.isModified) {
+				if (idx < 0) document.title += "*";
+			} else {
+				if (idx >= 0) document.title = document.title.substr(0, idx);
+			}
+		}
+	);
 		
-	$(go.Shape,"RoundedRectangle", 
-			//"Ellipse", 
-		{
-			parameter1: 20, // the corner has a large radius
-			name: "SHAPE", 
-			fill: $(go.Brush, "Linear", { 0: "rgb(254, 201, 0)", 1: "rgb(254, 162, 0)" }),
-			
-			portId: "",// this line shape is the port -- what links connect with
-			
-			fromLinkable: true,
-			fromLinkableSelfNode: true, 
-			fromLinkableDuplicates: true,
-			toLinkable: true, 
-			toLinkableSelfNode: true, 
-			toLinkableDuplicates: true,
-			cursor: "pointer"
-			
-		},
-		new go.Binding("fill", "fill").makeTwoWay(),
-	),
+	var SPREADLINKS = true;
 	
-	$(go.TextBlock, {
-			name: "TEXTBLOCK",
-			editable: true,
-			font: "bold 11pt helvetica, bold arial, sans-serif"
+	// This converter is used by the Picture.
+    function findHeadShot(key) {
+		return "images/" + key + ".png";
+    }	
+
+	// a node consists of some text with a line shape underneath
+	myDiagram.nodeTemplate = $(go.Node, "Auto", {
+			selectionObjectName: "TEXT", 
+			rotatable: true, 
+			locationSpot: go.Spot.Center,
+			resizable: true
 		},
-					
-					
-		// remember not only the text string but the scale and the font in the node data
-		new go.Binding("text", "text").makeTwoWay()
-	)
-);
+		
+		new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+						
+		$(go.Shape, "RoundedRectangle", {
+				parameter1: 20, // the corner has a large radius
+				name: "SHAPE", 
+				fill: "green",
+				strokeWidth: 2,
+				stroke: "blue",
+				
+				portId: "", // this line shape is the port -- what links connect with
+				
+				fromLinkable: true,
+				fromLinkableSelfNode: true, 
+				fromLinkableDuplicates: true,
+				toLinkableSelfNode: true, 
+				toLinkableDuplicates: true,
+				cursor: "pointer",
+				toLinkable: true
+			},
+			//new go.Binding("fill", "isHighlighted", function(h) { return h ? "fill" : "#A7E7FC"; }).ofObject(),
+			new go.Binding("fill", "fill").makeTwoWay(),
+			new go.Binding("stroke", "stroke").makeTwoWay(),
+			new go.Binding("strokeWidth", "strokeWidth").makeTwoWay()
+		),
+		
+		
+		$(go.Panel, "Horizontal",
+			$(go.Picture, {
+					name: 'Picture',
+					desiredSize: new go.Size(39, 50),
+					margin: new go.Margin(6, 8, 6, 10),
+				},
+			
+				new go.Binding("source", "source", findHeadShot).makeTwoWay()
+			),
+			// define the panel wher
+		  
+			$(go.TextBlock, {
+					name: "TEXTBLOCK",
+					editable: true,
+					font: "bold 18pt helvetica, bold arial, sans-serif"
+				},
+			
+				// remember not only the text string but the scale and the font in the node data
+				new go.Binding("text", "namenode").makeTwoWay(),
+				new go.Binding("scale", "scale").makeTwoWay()
+			)
+		),
+				
+		$(go.Panel, {
+				height: 15,
+				alignment: go.Spot.Right
+			},  // always this height, even if the TreeExpanderButton is not visible
+				
+			$("TreeExpanderButton")
+		)
+	);
 
 				
-// selected nodes show a button for adding children
-myDiagram.nodeTemplate.selectionAdornmentTemplate =
-$(go.Adornment, "Spot",
-	$(go.Panel, "Auto",
-			$(go.Shape, { 
+	// selected nodes show a button for adding children
+	myDiagram.nodeTemplate.selectionAdornmentTemplate = $(go.Adornment, "Spot",
+		$(go.Panel, "Auto",
+			$(go.Shape, {
 					fill: null, 
-					stroke: "blue", 
+					stroke: "blue",
 					strokeWidth: 2 
 				}
 			),
-			$(go.Placeholder)  // a Placeholder sizes itself to the selected Node
-    ),
-					
-	 // the button to create a "next" node, at the top-right corner
-    $("Button", {
-			alignment: go.Spot.Right,
-			alignmentFocus: go.Spot.Left,
-			click: addNodeAndLink  // this function is defined below
-		},
-		
-		$(go.Shape, "PlusLine", { 
-				width: 10, 
-				height: 10 
-			}
-		)
-    ), // end button
-					
-	$(go.Panel, "Horizontal",{
-			alignment: go.Spot.Top, 
-			alignmentFocus: go.Spot.Bottom 
-		},
-		
-		$("Button", {
-                click: editText,
-            },  // defined below, to support editing the text of the node
 			
-            $(go.TextBlock, "T", { 
-					font: "bold 10pt sans-serif", 
-					desiredSize: new go.Size(15, 15), 
-					textAlign: "center" 
+			$(go.Placeholder)  // a Placeholder sizes itself to the selected Node
+		),
+					
+		// the button to create a "next" node, at the top-right corner
+		$("Button", {
+				alignment: go.Spot.Right,
+				alignmentFocus: go.Spot.Left,
+				click: addNodeAndLink  // this function is defined below
+			},
+		
+			$(go.Shape, "PlusLine", { 
+					width: 10, 
+					height: 10 
 				}
 			)
-		),
+		), // end button
+					
+		$(go.Panel, "Horizontal",{
+				alignment: go.Spot.Top, 
+				alignmentFocus: go.Spot.Bottom 
+			},
 		
-		$("Button", {
-				click: changeColor // defined below, to support changing the color of the node
-			},  
+			$("Button", {
+					click: editText,
+				},  // defined below, to support editing the text of the node
+			
+				$(go.TextBlock, "T", {
+						font: "bold 10pt sans-serif", 
+						desiredSize: new go.Size(15, 15), 
+						textAlign: "center" 
+					}
+				)
+			),
+		
+			$("Button", {
+					click: changeColor // defined below, to support changing the color of the node
+				},  
 							
 				new go.Binding("ButtonBorder.fill", "color", nextColor),
 				new go.Binding("_buttonFillOver", "color", nextColor),
-			$(go.Shape, { 
-					fill: null, stroke: null, desiredSize: new go.Size(15, 15),  
-				}
-			)
-		),
+				$(go.Shape, { 
+						fill: null, stroke: null, desiredSize: new go.Size(15, 15),  
+					}
+				)
+			),
 						
-		$("Button", { // drawLink is defined below, to support interactively drawing new links
-				click: drawLink,  // click on Button and then click on target node
-				actionMove: drawLink  // drag from Button to the target node
-			},
-			$(go.Shape,
-              { geometryString: "M0 0 L8 0 8 12 14 12 M12 10 L14 12 12 14" })
-		)
+			$("Button", { // drawLink is defined below, to support interactively drawing new links
+					click: drawLink,  // click on Button and then click on target node
+					actionMove: drawLink  // drag from Button to the target node
+				},
+				
+				$(go.Shape, { 
+						geometryString: "M0 0 L8 0 8 12 14 12 M12 10 L14 12 12 14" 
+					}
+				)
+			)
 		
 		/*
 		$("Button", {
@@ -172,19 +191,18 @@ $(go.Adornment, "Spot",
 			)
         )
 		*/
-	)
-);
+		)
+	);
 
- function editText(e, button) {
-      var node = button.part.adornedPart;
-      e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
-}
+	function editText(e, button) {
+		var node = button.part.adornedPart;
+		e.diagram.commandHandler.editTextBlock(node.findObject("TEXTBLOCK"));
+	}
 
 
-// the context menu allows users to change the font size and weight,
-// and to perform a limited tree layout starting at that node
-myDiagram.nodeTemplate.contextMenu =
-	$(go.Adornment, "Vertical",
+	// the context menu allows users to change the font size and weight,
+	// and to perform a limited tree layout starting at that node
+	myDiagram.nodeTemplate.contextMenu = $(go.Adornment, "Vertical",
 		$("ContextMenuButton",
 			$(go.TextBlock, "Bigger"), { 
 				click: function(e, obj) {
@@ -242,7 +260,7 @@ myDiagram.nodeTemplate.contextMenu =
 		$("ContextMenuButton",
 			$(go.TextBlock, "Cut"),{
 				click: function(e, obj) {
-					 e.diagram.commandHandler.cutSelection(); 
+					 e.diagram.commandHandler.cutSelection();
 				}
 			}
 		),
@@ -257,213 +275,246 @@ myDiagram.nodeTemplate.contextMenu =
 		)
 	);
 
-// a link is just a Bezier-curved line of the same color as the node to which it is connected
-myDiagram.linkTemplate = 
-$(go.Link, {
-	curve: go.Link.Bezier,
-	fromShortLength: -2,
-	toShortLength: -2,
-			
-					
-	//routing: go.Link.Orthogonal, 
-	//corner: 3,
-	selectable: false
-},
-	$(go.Shape,{ 
-		strokeWidth: 3,
-		//stroke: "#555"
-	},
-	new go.Binding("stroke", "toNode", function(n) {
-		if (n.data.brush) {
-			return n.data.brush;
-		}
-		return "black";
-	}).ofObject())
-);
-
-// the Diagram's context menu just displays commands for general functionality
-myDiagram.contextMenu =
-$(go.Adornment, "Vertical",
-	$("ContextMenuButton",
-		$(go.TextBlock, "Undo"),{ 
-			click: function(e, obj) {
-				e.diagram.commandHandler.undo(); 
-			} 
+	// a link is just a Bezier-curved line of the same color as the node to which it is connected
+	myDiagram.linkTemplate = $(TaperedLink, go.Link.Bezier, (SPREADLINKS ? go.Link.None : go.Link.Orthogonal), 
+		{
+			fromEndSegmentLength: (SPREADLINKS ? 50 : 1),
+			toEndSegmentLength: (SPREADLINKS ? 50 : 1),
+				curve: go.Link.Bezier, 
+				adjusting: go.Link.Stretch,
+				reshapable: true, 
+				relinkableFrom: true, 
+				relinkableTo: true,
+				toShortLength: 3
 		},
-						
-		new go.Binding("visible", "", function(o) {
-			return o.diagram.commandHandler.canUndo(); 
-		}).ofObject()
-	),
-					
-	$("ContextMenuButton",
-		$(go.TextBlock, "Redo"),{ 
-			click: function(e, obj) {
-				e.diagram.commandHandler.redo(); 
-			} 
-		},
-						
-		new go.Binding("visible", "", function(o) {
-			return o.diagram.commandHandler.canRedo(); 
-		}).ofObject()
-	),
-					
-	$("ContextMenuButton",
-		$(go.TextBlock, "Save"),{ 
-			click: function(e, obj) {
-				save(); 
-			} 
-		}
-	),
-						
-	$("ContextMenuButton",
-		$(go.TextBlock, "Load"),{
-			click: function(e, obj) {
-				load();
-			}
-		}
-	),
-					
-	$("ContextMenuButton",
-		$(go.TextBlock, "Paste"),{
-			click: function(e, obj) {
-				e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-			}
-		},
+		new go.Binding("curviness"),
 		
-		new go.Binding("visible", "", function(o) {
-			return o.diagram.commandHandler.canPaste(); 
-			}
-		).ofObject()
-	),
-					
+		$(go.Shape,  // the link shape 
+				{ 
+					name: "SHAPELINK",
+					stroke: null,
+					strokeWidth: 0
+				}
+			),
+			
+		new go.Binding("fill", "fill").makeTwoWay()
+	);
+
+	// Select linkTemplate
+	myDiagram.linkTemplate.selectionAdornmentTemplate = $(go.Adornment, "Spot",
+		$(go.Panel, "Auto",
+			$(go.Shape, { 
+					fill: null,
+					strokeWidth: 0
+				}
+			),
+			$(go.Placeholder)  // a Placeholder sizes itself to the selected Node
+		),
 						
-	$("ContextMenuButton",
-		$(go.TextBlock, "Delete"),{
-			click: function(e, obj) {
-				e.diagram.commandHandler.deleteSelection(); 
+		$(go.Panel, "Horizontal",{
+				alignment: go.Spot.Top, 
+				alignmentFocus: go.Spot.Bottom 
+			},
+			
+			$("Button", {
+					click: changeColorLink // defined below, to support changing the color of the node
+				},  
+								
+					new go.Binding("ButtonBorder.fill", "color", nextColor),
+					new go.Binding("_buttonFillOver", "color", nextColor),
+					$(go.Shape, {
+						fill: null, stroke: null, desiredSize: new go.Size(10, 10),  
+					}
+				)
+			)
+		)
+	);
+
+	// the Diagram's context menu just displays commands for general functionality
+	myDiagram.contextMenu = $(go.Adornment, "Vertical",
+		$("ContextMenuButton",
+			$(go.TextBlock, "Undo"),{ 
+				click: function(e, obj) {
+					e.diagram.commandHandler.undo(); 
+				} 
+			},
+							
+			new go.Binding("visible", "", function(o) {
+				return o.diagram.commandHandler.canUndo(); 
+			}).ofObject()
+		),
+						
+		$("ContextMenuButton",
+			$(go.TextBlock, "Redo"),{ 
+				click: function(e, obj) {
+					e.diagram.commandHandler.redo(); 
+				} 
+			},
+							
+			new go.Binding("visible", "", function(o) {
+				return o.diagram.commandHandler.canRedo(); 
+			}).ofObject()
+		),
+						
+		$("ContextMenuButton",
+			$(go.TextBlock, "Save"),{ 
+				click: function(e, obj) {
+					save(); 
+				} 
 			}
-		}
-	)
-);
-
-
-myDiagram.addDiagramListener("SelectionMoved", function(e) {
-	var rootX = myDiagram.findNodeForKey(0).location.x;
-	myDiagram.selection.each(function(node) {
-		if (node.data.parent !== 0) {
-			return; // Only consider nodes connected to the root
-		}
+		),
 							
-		var nodeX = node.location.x;
-		if (rootX < nodeX && node.data.dir !== "right") {
-			node.data.dir = 'right';
-			myDiagram.model.updateTargetBindings(node.data);
-			layoutTree(node);
-		} else if (rootX > nodeX && node.data.dir !== "left") {
-			node.data.dir = 'left';
-			myDiagram.model.updateTargetBindings(node.data);
-			layoutTree(node);
-		}
+		$("ContextMenuButton",
+			$(go.TextBlock, "Load"),{
+				click: function(e, obj) {
+					load();
+				}
+			}
+		),
+						
+		$("ContextMenuButton",
+			$(go.TextBlock, "Paste"),{
+				click: function(e, obj) {
+					e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+				}
+			},
+			
+			new go.Binding("visible", "", function(o) {
+				return o.diagram.commandHandler.canPaste(); 
+				}
+			).ofObject()
+		),
+						
+							
+		$("ContextMenuButton",
+			$(go.TextBlock, "Delete"),{
+				click: function(e, obj) {
+					e.diagram.commandHandler.deleteSelection(); 
+				}
+			}
+		)
+	);
+
+
+	myDiagram.addDiagramListener("SelectionMoved", function(e) {
+		var rootX = myDiagram.findNodeForKey(0).location.x;
+		myDiagram.selection.each(function(node) {
+			if (node.data.parent !== 0) {
+				return; // Only consider nodes connected to the root
+			}
+								
+			var nodeX = node.location.x;
+			if (rootX < nodeX && node.data.dir !== "right") {
+				node.data.dir = 'right';
+				myDiagram.model.updateTargetBindings(node.data);
+				layoutTree(node);
+			} else if (rootX > nodeX && node.data.dir !== "left") {
+				node.data.dir = 'left';
+				myDiagram.model.updateTargetBindings(node.data);
+				layoutTree(node);
+			}
+		});
 	});
-});
-				/*
-				myDiagram.add(
-					// all Parts are Panels
-					$(go.Part,
-						{position: new go.Point(500, 100)},
-						$(go.Panel, "Table", "Vertical",
-							{ defaultAlignment: go.Spot.Left, background: "green"},
-							
-							//Design Button Undo
-							$(go.Panel, "Auto",{
-									row: 0, column: 0
-								},
-								
-								$("Button",{ 
-										margin: 4,
-										click: function(e, obj) {
-											e.diagram.commandHandler.undo()
-										}
-									},
-									
-									$(go.TextBlock, "undo")
-								)
-							),
-							
-							//Design Button Redo
-							$(go.Panel, "Auto", {
-									row: 0, column: 1
-								},
-								
-								$("Button",{ 
-									margin: 4,
-									click:  function(e, obj) {
-											e.diagram.commandHandler.redo()
-										}
-									},
-										
-									$(go.TextBlock, "Redo")
-								)
-							),
-							
-							//Design Button Layout
-							$(go.Panel, "Auto", {
-									row: 0, column: 2
-								},
-								
-								$("Button",{ 
-									margin: 4,
-									click: function() {
-											layoutAll()
-										}
-									},
-										
-									$(go.TextBlock, "Layout")
-								)
-							),
-							
-							//Design Button Save
-							$(go.Panel, "Auto",{
-									row: 1, column: 0
-								},
-								
-								$("Button",{ 
-									margin: 4,
-									click: function(){
-											save()
-										} 
-									},
-										
-									$(go.TextBlock, "Save")
-								)
-							),
-							
-							//Design Button Load
-							$(go.Panel, "Auto", {
-									row: 1, column: 1
-								},
-								
-								$("Button",{ 
-									margin: 4,
-									click: function(){
-											load()
-										} 
-									},
-										
-									$(go.TextBlock, "Load")
-								)
-							)
-						)
-					)
-				);*/
 
-				// read in the predefined graph using the JSON format data held in the "mySavedModel" textarea
+	
+
+	// read in the predefined graph using the JSON format data held in the "mySavedModel" textarea
 	load();
+	
+	// Overview
+    myOverview =
+     $(go.Overview, "myOverviewDiv",  // the HTML DIV element for the Overview 
+		{ 
+			observed: myDiagram, 
+			contentAlignment: go.Spot.Center 
+		}
+	);   // tell it which Diagram to show and pan
+	
+	// support editing the properties of the selected person in HTML
+    if (window.Inspector) {
+		myInspector = new Inspector('myInspector', myDiagram, {
+				properties: {
+					'key': { readOnly: true },
+					'loc': { readOnly: true },
+					'parent': { readOnly: true },
+					'fill': {show: Inspector.showIfPresent, type: 'color' },
+					'stroke': {show: Inspector.showIfPresent, type: 'color' },
+					'strokeWidth': {type: 'text'},
+					'scale': {type: 'text'}
+				}
+			}
+		);
+	}
 }
+
+
+// change Color Link
+function changeColorLink(e, button) {
+	var node = button.part.adornedPart;
+	var shape = node.findObject("SHAPELINK");
+	if (shape === null) return;
+	node.diagram.startTransaction("Change color");
+	shape.fill = nextColor(shape.fill);
+	var color = nextColor(shape.fill)
+	button["_buttonFillNormal"] = color;  // update the button too
+	button["_buttonFillOver"] = color;
+	//button.mouseEnter(e, button, '');
+	node.diagram.commitTransaction("Change color");
+}
+
+function TaperedLink() {
+    go.Link.call(this);
+}
+
+go.Diagram.inherit(TaperedLink, go.Link);
+  
+  // produce a Geometry from the Link's route
+  /** @override */
+TaperedLink.prototype.makeGeometry = function() {
+    // maybe use the standard geometry for this route, instead?
+    var numpts = this.pointsCount;
+    if (numpts < 4 || this.computeCurve() !== go.Link.Bezier) {
+      return go.Link.prototype.makeGeometry.call(this);
+    }
+
+    var p0 = this.getPoint(0);
+    var p1 = this.getPoint((numpts > 4) ? 2 : 1);
+    var p2 = this.getPoint((numpts > 4) ? numpts - 3 : 2);
+    var p3 = this.getPoint(numpts - 1);
+    var fromHoriz = Math.abs(p0.y - p1.y) < Math.abs(p0.x - p1.x);
+    var toHoriz = Math.abs(p2.y - p3.y) < Math.abs(p2.x - p3.x);
+
+    var p0x = p0.x + (fromHoriz ? 0 : -4);
+    var p0y = p0.y + (fromHoriz ? -4 : 0);
+    var p1x = p1.x + (fromHoriz ? 0 : -3);
+    var p1y = p1.y + (fromHoriz ? -3 : 0);
+    var p2x = p2.x + (toHoriz ? 0 : -2);
+    var p2y = p2.y + (toHoriz ? -2 : 0);
+    var p3x = p3.x + (toHoriz ? 0 : -1);
+    var p3y = p3.y + (toHoriz ? -1 : 0);
+
+    var fig = new go.PathFigure(p0x, p0y, true);  // filled
+    fig.add(new go.PathSegment(go.PathSegment.Bezier, p3x, p3y, p1x, p1y, p2x, p2y));
+
+    p0x = p0.x + (fromHoriz ? 0 : 4);
+    p0y = p0.y + (fromHoriz ? 4 : 0);
+    p1x = p1.x + (fromHoriz ? 0 : 3);
+    p1y = p1.y + (fromHoriz ? 3 : 0);
+    p2x = p2.x + (toHoriz ? 0 : 2);
+    p2y = p2.y + (toHoriz ? 2 : 0);
+    p3x = p3.x + (toHoriz ? 0 : 1);
+    p3y = p3.y + (toHoriz ? 1: 0);
+    fig.add(new go.PathSegment(go.PathSegment.Line, p3x, p3y));
+    fig.add(new go.PathSegment(go.PathSegment.Bezier, p0x, p0y, p2x, p2y, p1x, p1y).close());
+
+    var geo = new go.Geometry();
+    geo.add(fig);
+    geo.normalize();
+    return geo;
+  }
 			
 // used by nextColor as the list of colors through which we rotate
-var myColors = ["lightgray", "lightblue", "lightgreen", "yellow", "orange", "pink", "white", "brown", "gold"];
+var myColors = ["lightgray", "lightblue", "lightgreen", "yellow", "orange", "pink", "brown", "gold"];
 
 // used by both the Button Binding and by the changeColor click function
 function nextColor(c) {
@@ -576,9 +627,8 @@ function addNodeAndLink(e, obj) {
 	diagram.startTransaction("Add Node");
 	var oldnode = adorn.adornedPart;
 	var olddata = oldnode.data;
-				
-	// copy the brush and direction to the new node data
-	var newdata = { text: "idea", brush: olddata.brush, dir: olddata.dir, parent: olddata.key, fill: "#6EC1FF" };
+	var newdata = { namenode: "New Idea", fill: "white", stroke: "blue", strokeWidth: "", dir: olddata.dir, parent: olddata.key, source: ""};
+	
 	diagram.model.addNodeData(newdata);
 	layoutTree(oldnode);
 	diagram.commitTransaction("Add Node");
@@ -591,7 +641,7 @@ function layoutTree(node) {
 	layoutAll();  // lay out everything
 	} else {  // otherwise lay out only the subtree starting at this parent node
 		var parts = node.findTreeParts();
-		layoutAngle(parts, node.data.dir === "left" ? -180 : 0);
+		layoutAngle(parts, node.data.dir === "left" ? 180 : 0);
 	}
 }
 
@@ -599,8 +649,8 @@ function layoutAngle(parts, angle) {
 	var layout = go.GraphObject.make(go.TreeLayout, {
 		angle: angle,
 		arrangement: go.TreeLayout.ArrangementFixedRoots,
-		nodeSpacing: 5,
-		layerSpacing: 20 
+		nodeSpacing: 15,
+		layerSpacing: 60 
 	});
 	layout.doLayout(parts);
 }
@@ -703,7 +753,7 @@ function searchDiagram() {  // called by button
 
 	// search four different data properties for the string, any of which may match for success
 	if (input.value) {  // empty string only clears highlighteds collection
-		var results = myDiagram.findNodesByExample({ text: regex });
+		var results = myDiagram.findNodesByExample({ namenode: regex });
 		myDiagram.highlightCollection(results);
 		// try to center the diagram at the first node that was found
 		if (results.count > 0){
