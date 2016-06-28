@@ -7,12 +7,14 @@
 		<script type = "text/javascript" src="Js/go.js"></script >
 		
 		<script type = "text/javascript" rel = "stylesheet" src="Js/jquery.min.js" ></script >
-		<script type = "text/javascript" rel = "stylesheet" src = "Js/jquery-ui.js"></script>
-		<script type = "text/javascript" rel = "stylesheet" src = "Js/mindmap.js"></script >
+		<script type = "text/javascript" rel = "stylesheet" src = "Js/jquery-ui.js" ></script>
+		<script type = "text/javascript" rel = "stylesheet" src = "Js/mindmap.js" ></script >
+		<script type = "text/javascript" rel = "stylesheet" src = "Js/DataInspector.js"></script >
 		
-		<link type = "Text/Css" rel = "stylesheet" href = "Css/mindmap.css"></link >
+		<link type = "Text/Css" rel = "stylesheet" href = "Css/mindmap.css" ></link >
+		<link type = "Text/Css" rel = "stylesheet" src = "Css/DataInspector.css"></link>
 		<!--Create FAVICON for web-->
-		<link href = "images/Icons/favicon(2).ico" rel = "shortcut icon" type = "image/x-icon"></link >
+		<link href = "images/Icons/favicon(2).ico" rel = "shortcut icon" type = "image/x-icon" ></link >
 	</head >
 	
 	<body onload = "init()" id = "load" >
@@ -20,8 +22,8 @@
 		<!--menu-->
 		<div id  = "menu" >
 		
-			<div class = "save_Load_Search_MindMap">
-				<table>
+			<div class = "save_Load_Search_MindMap" >
+				<table >
 					<tr >
 						<td ><input id = "inputFileNameToSaveAs" ></input ></td >
 						<td ><button onclick = "saveTextAsFile()" >Save mindmap</button ></td >
@@ -76,7 +78,7 @@
 				</li >
 			</ul >
 			
-			<table id = "Hotkeys_Table">
+			<table id = "Hotkeys_Table" >
 				<tr >
 					<td >
 						<h2 >H2 1</h2 >
@@ -142,7 +144,7 @@
 					<td ></td >
 					<td ><a id = "Helper" >Help</a ></td >
 				</tr >
-			</table>
+			</table >
 		</div >
 		
 		
@@ -150,15 +152,24 @@
 		<div class = "mindMap" >
 			<!--Div MindMap-->
 			<div id = "DiagramDiv" ></div >
-			<div id="myOverviewDiv"></div>
+			<div id="myOverviewDiv" ></div>
+			
 		</div >
+		
+		 <div style = "height: 300px; width: 300px; border: 2px solid red;" >
+			<div id="myInspector" >
+
+			</div >
+		 </div >
 		
 		<table >
 			<textarea id="mySavedModel" >
 				{ "class": "go.TreeModel",
 					"nodeDataArray": [
-						{"key":0, "text":"Mind Map", "loc":"50 150", "color": "orange"}
-						
+						{"key":0, "stroke": "blue", "namenode":"Mind Map", "loc":"50 150", "fill": "orange", "source": "", "strokeWidth": ""}
+					],
+					
+					"linkDataArray": [
 					]
 				}
 			</textarea >
